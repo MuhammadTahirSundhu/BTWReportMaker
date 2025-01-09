@@ -35,7 +35,10 @@ from reportlab.lib.pagesizes import letter
 import sys
 
 # Set the standard output encoding to utf-8
-sys.stdout.reconfigure(encoding='utf-8')
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding='utf-8')
+else:
+    print("Warning: Unable to reconfigure sys.stdout encoding.")
 
 
 CONFIG_FILE = "config.json"
