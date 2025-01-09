@@ -1,0 +1,36 @@
+name: Build macOS App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12.1"  # Match the Python version you're using
+
+    - name: Install Dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install -r requirements.txt
+
+    - name: Build App with PyInstaller
+      run: |
+        pip3 install pyinstaller
+        pyinstaller --onefile --windowed src/main.py --add-data "src/check.png:." --add-data "src/file.png:."
+    
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: BTWReportMaker
+        path: dist/
