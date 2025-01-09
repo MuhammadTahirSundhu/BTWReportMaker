@@ -30,7 +30,7 @@ jobs:
         pyinstaller --onefile --windowed src/main.py --add-data "src/check.png;." --add-data "src/file.png;."
     
     - name: Upload Build Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: BTWReportMaker
         path: dist/
