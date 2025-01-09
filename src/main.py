@@ -16,13 +16,10 @@ from PySide6.QtCore import Qt, QMimeData
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import QListWidget
 
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtGui import (QCursor,QFont, QPixmap)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QHBoxLayout,
     QLabel, QListWidget, QListWidgetItem, QMainWindow,
-    QProgressBar, QPushButton, QSizePolicy, QVBoxLayout,
+    QProgressBar, QPushButton, QVBoxLayout,
     QWidget)
 from PySide6.QtWidgets import QFileDialog
 import fitz
