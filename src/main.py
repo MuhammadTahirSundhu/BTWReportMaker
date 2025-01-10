@@ -1189,17 +1189,18 @@ class Ui_B(object):
     def process_files(self):
         """Main file processing loop"""
         print("\nChecking for config file...")
-        config = load_config()
+        # config = load_config()
 
         # First time setup if no config exists
-        if not config:
-            print("No config found! Starting first-time setup...")
-            config = setup_paths(self.template_pdf,self.signature_file_path,self.output_pdf_path)
-        else:
-            print("Found existing config with paths:")
-            print(f"Template: {config['template_path']}")
-            print(f"Signature: {config['signature_path']}")
-            print(f"Output: {config['output_dir']}")
+        # if not config:
+        #     print("No config found! Starting first-time setup...")
+        # else:
+        #     print("Found existing config with paths:")
+        #     print(f"Template: {config['template_path']}")
+        #     print(f"Signature: {config['signature_path']}")
+        #     print(f"Output: {config['output_dir']}")
+
+        config = setup_paths(self.template_pdf,self.signature_file_path,self.output_pdf_path)
 
         
 
