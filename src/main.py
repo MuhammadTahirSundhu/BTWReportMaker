@@ -1144,33 +1144,61 @@ class Ui_B(object):
                 self.line_2.setStyleSheet(u"background-color: rgb(32, 216, 11);")
 
     def select_template(self):
-            template_path, _ = QFileDialog.getOpenFileName(self.dragDropListWidget, "Select Template PDF", "", "PDF Files (*.pdf)")
-            if template_path:
-                self.template_pdf = template_path
-                self.count = 2
-                self.updateStepLine(self.count)
-                if hasattr(self, 'template_pdf') and self.template_pdf:  
-                    self.dragDropListWidget.takeItem(self.dragDropListWidget.row(self.template_pdf))
-                self.template_pdf = QListWidgetItem(self.template_pdf)  
-                self.dragDropListWidget.addItem(self.template_pdf)
-                self.has_pdf = True 
-                print(template_path)
-                setup_paths(self.template_pdf,self.signature_file_path,self.output_pdf_path)
+        """Allow the user to select a template PDF."""
+        template_path, _ = QFileDialog.getOpenFileName(self.dragDropListWidget, "Select Template PDF", "", "PDF Files (*.pdf)")
+        if template_path:
+            self.template_pdf = template_path
+            self.count = 2
+            self.updateStepLine(self.count)
 
+            # Remove any existing template entry in the list widget
+            for index in range(self.dragDropListWidget.count()):
+                item = self.dragDropListWidget.item(index)
+                if item.text() == self.template_pdf:
+                    self.dragDropListWidget.takeItem(index)
+                    break
+
+            # Add the new template to the list widget
+            item = QListWidgetItem(self.template_pdf)
+            self.dragDropListWidget.addItem(item)
+            self.has_pdf = True
+
+            print(f"Template selected: {template_path}")
+
+            # Ensure all required paths are available before calling setup_paths
+            if self.template_pdf and self.signature_file_path and self.output_pdf_path:
+                setup_paths(self.template_pdf, self.signature_file_path, self.output_pdf_path)
+        else:
+            print("No template selected.")
 
 
     def select_signature(self):
-            signature_path, _ = QFileDialog.getOpenFileName(self.dragDropListWidget, "Select Signature Image", "", "Image Files (*.png *.jpg *.jpeg)")
-            if signature_path:
-                self.signature_file_path = signature_path
-                self.count = 3
-                self.updateStepLine(self.count)
-                if hasattr(self, 'signature_file_path') and self.signature_file_path:  
-                    self.dragDropListWidget.takeItem(self.dragDropListWidget.row(self.signature_file_path))
-                self.signature_file_path = QListWidgetItem(self.signature_file_path)
-                self.dragDropListWidget.addItem(self.signature_file_path)
-                self.has_image = True  # Mark that an image is in the list
-                setup_paths(self.template_pdf,self.signature_file_path,self.output_pdf_path)
+        """Allow the user to select a signature image."""
+        signature_path, _ = QFileDialog.getOpenFileName(self.dragDropListWidget, "Select Signature Image", "", "Image Files (*.png *.jpg *.jpeg)")
+        if signature_path:
+            self.signature_file_path = signature_path
+            self.count = 3
+            self.updateStepLine(self.count)
+    
+            # Remove any existing signature entry in the list widget
+            for index in range(self.dragDropListWidget.count()):
+                item = self.dragDropListWidget.item(index)
+                if item.text() == self.signature_file_path:
+                    self.dragDropListWidget.takeItem(index)
+                    break
+                
+            # Add the new signature to the list widget
+            item = QListWidgetItem(self.signature_file_path)
+            self.dragDropListWidget.addItem(item)
+            self.has_image = True
+    
+            print(f"Signature selected: {signature_path}")
+    
+            # Ensure all required paths are available before calling setup_paths
+            if self.template_pdf and self.signature_file_path and self.output_pdf_path:
+                setup_paths(self.template_pdf, self.signature_file_path, self.output_pdf_path)
+        else:
+            print("No signature selected.")
 
 
     
@@ -1187,27 +1215,16 @@ class Ui_B(object):
 
     
     def process_files(self):
-        """Main file processing loop"""
+        """Main file processing loop for GUI"""
         print("\nChecking for config file...")
-        # config = load_config()
 
-        # First time setup if no config exists
-        # if not config:
-        #     print("No config found! Starting first-time setup...")
-        # else:
-        #     print("Found existing config with paths:")
-        #     print(f"Template: {config['template_path']}")
-        #     print(f"Signature: {config['signature_path']}")
-        #     print(f"Output: {config['output_dir']}")
-
-        config = setup_paths(self.template_pdf,self.signature_file_path,self.output_pdf_path)
-
-        
+        # Set up paths using GUI-selected files
+        config = setup_paths(self.template_pdf, self.signature_file_path, self.output_pdf_path)
 
         if not self.files:
             print("No files detected. Please provide valid files.")
             return
-        
+
         self.progressBar.setValue(0)
         success = 0
         total = len(self.files)
@@ -1215,10 +1232,9 @@ class Ui_B(object):
 
         print(f"\nProcessing {total} file(s)...")
         for file in self.files:
-            # Clean up the file path
-            self.progressBar.setValue(100)
-            file = os.path.expanduser(file.replace('\\', ''))
-            print(f"\nChecking file: {file}")
+            # Clean up the file path for macOS
+            file = os.path.expanduser(file.strip().replace('\\', ''))  # Handle escaped spaces or unnecessary characters
+            print(f"\nChecking file: {file}")
             self.progressBar.setValue(50)
 
             try:
@@ -1226,17 +1242,18 @@ class Ui_B(object):
                     print(f"✗ File not found: {file}")
                     continue
 
-                # Case-insensitive check for the file ending
+                # Case-insensitive check for file extension
                 if not file.upper().endswith("BTWATTENDANCEHISTORYREPORT.PDF"):
                     print(f"✗ Not a valid attendance report: {file}")
                     continue
 
-                self.progressBar.setValue(100)
+                self.progressBar.setValue(75)
                 print(f"Processing with:")
                 print(f"- Template: {config['template_path']}")
                 print(f"- Signature: {config['signature_path']}")
                 print(f"- Output dir: {config['output_dir']}")
 
+                # Call the processing function
                 process_result, summary = process_single_file(
                     file,
                     config["template_path"],
@@ -1253,15 +1270,22 @@ class Ui_B(object):
                 import traceback
                 print(traceback.format_exc())
 
+            self.progressBar.setValue(100)
+
         print(f"\nComplete! Successfully processed {success}/{total} files.")
+    
+        # Clear the file list and reset the progress bar
         self.files.clear()
         self.dragDropListWidget.clear()
         self.progressBar.setValue(0)
+        
         if summaries:
             print("\nProcessing Summaries:")
             for summary in summaries:
                 print(summary)
+    
         print(f"\nOutput location: {config['output_dir']}")
+
 
 
 class MainWindow(QMainWindow):
