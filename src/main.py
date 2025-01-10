@@ -1217,8 +1217,8 @@ class Ui_B(object):
         for file in self.files:
             # Clean up the file path
             self.progressBar.setValue(100)
-            file = os.path.expanduser(file.strip().strip('"'))
-            print(f"\nChecking file: {file}")
+            file = os.path.expanduser(file.replace('\\', ''))
+            print(f"\nChecking file: {file}")
             self.progressBar.setValue(50)
 
             try:
